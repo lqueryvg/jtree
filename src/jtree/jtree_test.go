@@ -22,7 +22,7 @@ func TestJTree(t *testing.T) {
 	// Setup
 	dir, err := ioutil.TempDir("", "example")
 	check(err)
-	//defer os.RemoveAll(dir)
+	defer os.RemoveAll(dir)
 
 	fmt.Println(dir)
     os.MkdirAll(filepath.Join(dir, "dir1"), 0755)
