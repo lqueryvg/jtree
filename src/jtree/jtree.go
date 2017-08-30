@@ -29,7 +29,7 @@ type Tree struct {
 	dirs map[string]*Tree
 }
 
-func descend(dir, path string) *Tree {
+func Descend(dir, path string) *Tree {
 	//log.Println("  dir =", dir)
 	log.Println("descend =", path)  // path only used for debugging
 
@@ -47,11 +47,13 @@ func descend(dir, path string) *Tree {
 
 	for _, file := range files {
 		if file.IsDir() {
-			log.Println("file is dir =", file.Name())
-			tree.dirs[file.Name()] = descend(file.Name(), filepath.Join(path, file.Name()))
+			//log.Println("file is dir =", file.Name())
+
+			subtree := Descend(file.Name(), filepath.Join(path, file.Name()))
+			tree.dirs[file.Name()] = subtree
+			tree.size += subtree.size
 		}
 		tree.size += file.Size()
-
 	}
 
 	if err := os.Chdir(".."); err != nil {
@@ -61,7 +63,8 @@ func descend(dir, path string) *Tree {
 	return tree
 }
 
-func Descend(dir string) *Tree {
+/*
+func oldDescend(dir string) *Tree {
 	// top node has to be treated differently:
 	// 1. to get the size of the top directory itself (because the
 	//    recursive function only includes size of child directories)
@@ -87,15 +90,20 @@ func Descend(dir string) *Tree {
 	//$tree->{'dirs'}->{$startDir} = descend($startDir, $startDir);
 
 	tree := &Tree{fileinfo.Size(), make(map[string]*Tree)}
-	tree.dirs[dir] = descend(dir, dir)
+	tree.dirs[dir] = Descend(dir, dir)
 
 	return tree
 }
+*/
+func _DumpTree(tree *Tree, depth uint) {
 
-func DumpTree(tree *Tree, depth uint) {
-
-	for dir := range tree.dirs {
-		fmt.Printf("%d,%d,%s\n", tree.dirs[dir].size, depth, dir)
-		DumpTree(tree.dirs[dir], depth+1)
+	for dir, subtree := range tree.dirs {
+		fmt.Printf("%d,%d,%s\n", subtree.size, depth, dir)
+		_DumpTree(subtree, depth+1)
 	}
+}
+func DumpTree(tree *Tree) {
+	fmt.Println("#size,depth,name")
+	fmt.Printf("%d,%d,%s\n", tree.size, 0, "{TOP}")
+	_DumpTree(tree, 1)
 }

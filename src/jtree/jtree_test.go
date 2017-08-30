@@ -31,25 +31,25 @@ func TestJTree(t *testing.T) {
 	test_file_size := int64(len(bytes))
 	err = ioutil.WriteFile(filepath.Join(dir, "file1"), bytes, 0644)
 	check(err)
-	err = ioutil.WriteFile(filepath.Join(dir, "dir2", "file1"), bytes, 0644)
-	check(err)
 	err = ioutil.WriteFile(filepath.Join(dir, "dir2", "file2"), bytes, 0644)
 	check(err)
-	tree := Descend(dir)
+	err = ioutil.WriteFile(filepath.Join(dir, "dir2", "file3"), bytes, 0644)
+	check(err)
+	tree := Descend(dir, dir)
 	log.Println(tree)
 
-	var expected_start_node_size int64
+	//var expected_start_node_size int64
 	var expected_top_node_size int64
 	switch platform := runtime.GOOS; platform {
 	case "darwin":
 		// OSX directory size seems to be 34 bytes * number of items in directory
 		// . and .. count as items but are hidden, so an empty dir = 2 items = 68 bytes
-		expected_start_node_size = 34 * 5 // 34 bytes * 5 items = ., .., dir1, dir2, file1
-		expected_top_node_size = 34 * 6 + test_file_size // 34 bytes * 6 items + test_file_size
+		//expected_start_node_size = 34 * 5 // 34 bytes * 5 items = ., .., dir1, dir2, file1
+		expected_top_node_size = 34 * 6 + test_file_size * 3 // 34 bytes * 6 items + test_file_size
 		//fmt.Println("OS X.")
 	case "linux":
-		expected_start_node_size = linux_empty_dir_size
-		expected_top_node_size = linux_empty_dir_size * 2 + test_file_size // 8201
+		//expected_start_node_size = linux_empty_dir_size
+		expected_top_node_size = linux_empty_dir_size * 2 + test_file_size * 3 // 8219
 
 		//fmt.Println("Linux.")
 	default:
@@ -59,6 +59,7 @@ func TestJTree(t *testing.T) {
 		t.Fatalf("unsupported operating system %v", platform)
 	}
 
+	/*
 	t.Run("CheckStartNode", func(t *testing.T) {
 		//var expected_size int64 = empty_dir_size
 		if tree.size != expected_start_node_size {
@@ -68,15 +69,16 @@ func TestJTree(t *testing.T) {
 		if len(tree.dirs) != 1 {
 			t.Fatalf("expected 1 dir in start node, got %v", len(tree.dirs))
 		}
-	})
-
+	})*/
+/*
 	// get first (and only) child node from start node
 	var topdir *Tree = nil
 	for _, node := range tree.dirs {
 		topdir = node
 		break
 	}
-
+*/
+	topdir := tree
 	t.Run("CheckTopDir", func(t *testing.T) {
 
 		if topdir.size != expected_top_node_size {

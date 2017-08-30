@@ -18,9 +18,8 @@ func main() {
 		return
 	}
 
-	tree := jtree.Descend(*startPath)
+	tree := jtree.Descend(*startPath, *startPath)
 
-	fmt.Println("#size,depth,name")
 
-	jtree.DumpTree(tree, 1)
+	jtree.DumpTree(tree)
 }
